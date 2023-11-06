@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/main.css">
+  <script src="js/item.js" defer></script>
+  <script src="js/list.js" defer></script>
+  <script src="js/toDoListController.js" defer></script>
+  <title>To-do List</title>
+</head>
+<body>
+  <main>
+    <section class="side-menu">
+      <h1>Listas</h1>
+      <div class="list list-creator">
+        <input type="text" id="newListTitle" placeholder="Título" maxlength="30" required>
+        <input type="button" value="Criar" id="createListButton">
+      </div>
+      <div class="list new-list-button">
+        <span class="button-title">+</span>
+      </div>
+    </section>
+    <section class="list-content">
+      <div class="item item-creator">
+        <input type="text" id="newItemTitle" placeholder="Título" required>
+        <textarea id="newItemDescription" class="descriptionInput" required></textarea>
+        <input type="button" value="Criar" id="createItemButton">
+      </div>
+      <div class="new-item-button">
+        <span class="button-title">+</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
