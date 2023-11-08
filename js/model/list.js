@@ -1,6 +1,6 @@
 class List {
-  constructor(nome) {
-    this.nome = nome;
+  constructor(name) {
+    this.name = name;
     this.itens = [];
   }
 

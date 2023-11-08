@@ -18,56 +18,86 @@ let globalItemID = 0
 
 
 
-// Action Listeners
-
 // Verifica se existe algo no local storage
 window.addEventListener("load", function () {
   DOMController.initialLoad()
 
-  if (StorageController.isEmpty()) {
-    console.log("tem")
+  if (!StorageController.isEmpty()) {
     lists = StorageController.loadLists()
     globalItemID = StorageController.loadGlobalID()
     
-    setTimeout(function () {
-      DOMController.loadLists(lists)
-      DOMController.setGlobalItemID(globalItemID)
-    }, 500)
-  } else {
-    DOMController.initialLoad()
+    DOMController.loadLists(lists, getItens)
   }
+
 })
 
 // Cria uma nova lista
 createListButton.addEventListener("click", function () {
-  setTimeout(function () {
-  lists.push(DOMController.getLastList())
-  console.log(DOMController.getLastList())
+  let l = new List(DOMController.getNewListName())
 
-  StorageController.save(lists, globalItemID)
-  }, 500)
+  // Se o nome não for vazio
+  if (l.name) {
+    // Se o nome ainda não foi utilizado
+    if (!isNameAlreadyUsed(l.name)) {
+      lists.push(l)
+    
+      StorageController.save(lists, globalItemID)
+    
+      DOMController.loadLists(lists, getItens)
+    } else {
+      alert("O nome da lista já existe")
+    }
+  } else {
+    alert("A lista deve receber um nome")
+  }
 })
 
 // Cria um novo item para uma lista
 createItemButton.addEventListener("click", function () {
-  DOMController.setGlobalItemID(globalItemID)
+  let i = new Item(
+    globalItemID,
+    DOMController.getNewItemTitle(),
+    DOMController.getNewItemDescription()
+  )
 
-  setTimeout(function () {
-  lists.push(DOMController.getLastItem())
-  console.log(DOMController.getLastItem())
+  getSelectedList().itens.push(i)
 
   StorageController.save(lists, globalItemID)
-  }, 500)
+  
+  DOMController.loadItens(getItens())
 })
 
-// Função que carrega a lista clicada retornar o nome da lista para marcar aqui e fazer o push
-// na posição certa
+function getSelectedList() {
+  let selectedList = lists.find((list) => list.name === DOMController.getAccListId())
 
+  return selectedList
+}
+
+
+
+// ???
+let getItens = function getItensToLoad() {
+  return getSelectedList().itens
+}
+
+function isNameAlreadyUsed(name) {
+  let listLength = lists.length
+  for (let i = 0; i < listLength; i++) {
+    if (lists[i].name == name) {
+      return true
+    }
+  }
+  return false
+}
 
 /*
   ! Parar de criar tudo no DOM
   * Criar objetos aqui e mandar esses objetos para o DOM construir
-    * Criar funções no DOM para puxar os dados dos forms para poder construir os objetos aqui
-    * Criar função no DOM para salvar a lista atual e criar um getAccList()
+    [x] Criar funções no DOM para puxar os dados dos forms para poder construir os objetos aqui
+    [x] Criar função no DOM para salvar a lista atual e criar um getAccList()
+    [x] Função que carrega a lista clicada retornar o nome da lista para marcar aqui e fazer o push
+        na posição certa
 
+    * Tirar os event listeners do DOM e suas funções -> testar novas funções e estruturações
+      * event listeners
 */

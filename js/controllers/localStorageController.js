@@ -4,7 +4,7 @@ import Item from "../model/item.js"
 function isEmpty() {
   const savedLists = JSON.parse(localStorage.getItem("lists"));
 
-  if (!(savedLists)) {
+  if (savedLists) {
     return false
   }
   
@@ -12,9 +12,8 @@ function isEmpty() {
 }
 
 function loadLists() {
-  if (isEmpty) {
+  if (!isEmpty()) {
     const savedLists = JSON.parse(localStorage.getItem("lists"))
-    console.log(savedLists)
 
     savedLists.map(listData => {
       const list = new List(listData.nome, [])
@@ -36,7 +35,7 @@ function loadLists() {
 }
 
 function loadGlobalID() {
-  if (isEmpty) {
+  if (!isEmpty()) {
     const globalID = JSON.parse(localStorage.getItem("globalID"))
 
     return globalID
@@ -44,7 +43,6 @@ function loadGlobalID() {
 }
 
 function save(lists, globalID) {
-  console.log(lists)
   localStorage.setItem("lists", JSON.stringify(lists))
   localStorage.setItem("globalID", globalID)
 }
