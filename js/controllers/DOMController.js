@@ -1,5 +1,4 @@
-import List from "../model/list.js"
-import Item from "../model/item.js"
+import * as toDoController from "./toDoListController.js"
 
 // Containers
 const listMenu = document.querySelector(".side-menu")
@@ -22,8 +21,8 @@ const newItemTitle = document.getElementById("newItemTitle")
 const newItemDescription = document.getElementById("newItemDescription")
 const createItemButton = document.getElementById("createItemButton")
 
-let lists = []
 let accList
+let selectedIdItem
 
 
 
@@ -67,8 +66,8 @@ function loadLists(lists, getItens) {
   newListButton.addEventListener("click", newListButtonAction)
 }
 
+newItemButton.addEventListener("click", newItemButtonAction)
 
-// !
 function newItemButtonAction() {
   newItemButton.remove()
 
@@ -78,9 +77,7 @@ function newItemButtonAction() {
   listContent.append(newItemCreator)
 }
 
-newItemButton.addEventListener("click", newItemButtonAction)
 
-// !
 function getAccListId() {
   if (accList) {
     let id = accList.id.split(":")[1]
@@ -110,6 +107,7 @@ function selectList(selectedListId) {
 function loadItens(itens) {
   listContent.innerHTML = ''
 
+  if (itens) {
   itens.forEach((item) => {
     // Cria uma div para o item
     let itemDiv = document.createElement("div")
@@ -134,22 +132,34 @@ function loadItens(itens) {
     let uncheckedImg = document.createElement("img")
     if (item.isDone) {
       uncheckedImg.src = "media/icons/checked.svg"
+      uncheckedImg.alt = "Checked button"
       itemDiv.classList.add("done")
     } else {
       uncheckedImg.src = "media/icons/unchecked.svg"
+      uncheckedImg.alt = "Unchecked button"
     }
-    uncheckedImg.alt = "Unchecked button"
     uncheckedImg.id = `doneID:${item.id}`
-
+    
     // Cria a imagem para o botão "Delete"
     let deleteImg = document.createElement("img")
     deleteImg.src = "media/icons/delete.svg"
     deleteImg.alt = "Delete button"
     deleteImg.id = `deleteID:${item.id}`
-
+    
     // Adiciona os elementos à div do item
     buttonsDiv.appendChild(uncheckedImg)
     buttonsDiv.appendChild(deleteImg)
+
+    uncheckedImg.addEventListener("click", function() {
+      setSelectedIdItem(item.id)
+      toggleDone(item.id)
+      toDoController.doneListener()
+    })
+    deleteImg.addEventListener("click", function() {
+      setSelectedIdItem(item.id)
+      deleteItem(item.id)
+      toDoController.deleteListener()
+    })
 
     itemDiv.appendChild(titleSpan)
     itemDiv.appendChild(descriptionSpan)
@@ -158,6 +168,7 @@ function loadItens(itens) {
     // Adiciona a div do item ao conteúdo da lista
     listContent.appendChild(itemDiv)
   })
+  }
 
   listContent.append(newItemButton)
 }
@@ -166,7 +177,6 @@ document.addEventListener("click", function(event) {
   if (event.target && event.target.classList.contains("list")) {
     let selectedList = event.target
     selectList(selectedList)
-    // loadItens(selectedList) // Carrega os itens da lista selecionada
     event = undefined
   }
 })
@@ -181,10 +191,8 @@ function newListButtonAction() {
   newListTitle.value = ""
 }
 
-// ! 
 function getNewListName() {
   newListButton.remove()
-  // let aux = newListCreator
   listMenu.append(newListCreator)
 
   let name = newListTitle.value
@@ -192,14 +200,50 @@ function getNewListName() {
   return name
 }
 
-// !
 function getNewItemTitle() {
   return newItemTitle.value
 }
 
-// !
 function getNewItemDescription() {
   return newItemDescription.value
+}
+
+
+
+function setSelectedIdItem(id) {
+  selectedIdItem = id
+}
+
+function getSelectedIdItem(id) {
+  return selectedIdItem
+}
+
+function toggleDone(id) {
+  let itensDOM = Array.from(document.querySelectorAll(".item"))
+  const selectedItem = itensDOM.find((div) => div.id.split(':')[1] == id)
+  
+  if (selectedItem) {
+    if (!selectedItem.classList.contains("done")) {
+      document.getElementById(`doneID:${id}`).src = "./media/icons/checked.svg"
+      document.getElementById(`doneID:${id}`).alt = "Checked button"
+
+      selectedItem.classList.add("done")
+    } else {
+      document.getElementById(`doneID:${id}`).src = "./media/icons/unchecked.svg"
+      document.getElementById(`doneID:${id}`).alt = "Unchecked button"
+
+      selectedItem.classList.remove("done")
+    }
+  }
+}
+
+function deleteItem(id) {
+  let itensDOM = Array.from(document.querySelectorAll(".item"))
+  const selectedItem = itensDOM.find((div) => div.id.split(':')[1] == id)
+
+  if (selectedItem) {
+    selectedItem.remove()
+  }
 }
 
 
@@ -208,5 +252,5 @@ export {
   initialLoad, loadLists, loadItens,
   getNewListName,
   getNewItemTitle, getNewItemDescription,
-  getAccListId
+  getAccListId, getSelectedIdItem
 }

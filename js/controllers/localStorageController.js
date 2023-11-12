@@ -16,7 +16,7 @@ function loadLists() {
     const savedLists = JSON.parse(localStorage.getItem("lists"))
 
     savedLists.map(listData => {
-      const list = new List(listData.nome, [])
+      const list = new List(listData.name, [])
 
       listData.itens.forEach(itemData => {
         const item = new Item(
@@ -24,12 +24,12 @@ function loadLists() {
           itemData.title,
           itemData.description,
           itemData.isDone)
-        list.itens.push(item)
+        list.addItem(item)
       });
 
       return list
-    });
-
+    })
+    
     return savedLists
   }
 }

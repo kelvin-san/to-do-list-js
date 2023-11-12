@@ -23,10 +23,30 @@ window.addEventListener("load", function () {
   DOMController.initialLoad()
 
   if (!StorageController.isEmpty()) {
-    lists = StorageController.loadLists()
+
+    const listAux = StorageController.loadLists()
+    console.log(listAux)
+    listAux.map(listData => {
+      const list = new List(listData.name)
+
+      listData.itens.forEach(itemData => {
+        const item = new Item(
+          itemData.id,
+          itemData.title,
+          itemData.description,
+          itemData.isDone)
+        list.addItem(item)
+      })
+
+      lists.push(list)
+      return list
+    })
+    
+    console.log(lists)
+    // lists = StorageController.loadLists()
     globalItemID = StorageController.loadGlobalID()
     
-    DOMController.loadLists(lists, getItens)
+    DOMController.loadLists(lists, getItensFunc)
   }
 
 })
@@ -43,7 +63,7 @@ createListButton.addEventListener("click", function () {
     
       StorageController.save(lists, globalItemID)
     
-      DOMController.loadLists(lists, getItens)
+      DOMController.loadLists(lists, getItensFunc)
     } else {
       alert("O nome da lista já existe")
     }
@@ -54,29 +74,71 @@ createListButton.addEventListener("click", function () {
 
 // Cria um novo item para uma lista
 createItemButton.addEventListener("click", function () {
-  let i = new Item(
-    globalItemID,
-    DOMController.getNewItemTitle(),
-    DOMController.getNewItemDescription()
-  )
+  let itemTitle = DOMController.getNewItemTitle()
+  let itemDesc = DOMController.getNewItemDescription()
 
-  getSelectedList().itens.push(i)
-
-  StorageController.save(lists, globalItemID)
+  if (itemTitle) {
+    let i = new Item(
+      globalItemID,
+      itemTitle,
+      itemDesc,
+      false
+    )
+    
+    let listName = getSelectedList().name
+    let index = getIndexSelectedList(listName)
+    
+    lists[index].addItem(i)
   
-  DOMController.loadItens(getItens())
+    StorageController.save(lists, globalItemID)
+    
+    DOMController.loadItens(getItensFunc())
+  
+    globalItemID++
+  } else {
+    alert("O item deve ter ao menos um título")
+  }
 })
 
-function getSelectedList() {
-  let selectedList = lists.find((list) => list.name === DOMController.getAccListId())
 
-  return selectedList
+
+// Funções auxiliares
+
+let doneListener = function toggleItemAsDone() {
+  let id = DOMController.getSelectedIdItem()
+  let listName = getSelectedList().name
+  let listIndex = getIndexSelectedList(listName)
+  let itemIndex = lists[listIndex].getItemIndex(id)
+
+  lists[listIndex].itens[itemIndex].toggleDone()
+
+  StorageController.save(lists, globalItemID)
 }
 
+let deleteListener = function toggleItemAsDone() {
+  let id = DOMController.getSelectedIdItem()
+  let listName = getSelectedList().name
+  let listIndex = getIndexSelectedList(listName)
 
+  lists[listIndex].delItem(id)
 
-// ???
-let getItens = function getItensToLoad() {
+  StorageController.save(lists, globalItemID)
+}
+
+function getSelectedList() {
+  let selectedList = lists.find((list) => list.name == DOMController.getAccListId())
+  let l = lists[getIndexSelectedList(selectedList.name)]
+
+  return l
+}
+
+function getIndexSelectedList(name) {
+  const index = lists.findIndex(i => i.name == name)
+
+  return index
+}
+
+let getItensFunc = function getItensToLoad() {
   return getSelectedList().itens
 }
 
@@ -91,13 +153,15 @@ function isNameAlreadyUsed(name) {
 }
 
 /*
-  ! Parar de criar tudo no DOM
-  * Criar objetos aqui e mandar esses objetos para o DOM construir
-    [x] Criar funções no DOM para puxar os dados dos forms para poder construir os objetos aqui
-    [x] Criar função no DOM para salvar a lista atual e criar um getAccList()
-    [x] Função que carrega a lista clicada retornar o nome da lista para marcar aqui e fazer o push
-        na posição certa
+  [X] Refatorar função de deletar item
+  [X] Refatorar função de marcar item como feito
+  [X] Fazer essas funções utilizando os métodos das classes
+  
+  [ ] Comentar e estruturar melhor código
+  [ ] Organizar criação dos elementos no DOMController
 
-    * Tirar os event listeners do DOM e suas funções -> testar novas funções e estruturações
-      * event listeners
+  * Lembrar de fazer essas funções ainda dividindo as responsabilidades
+  * entre DOM e esse controller
 */
+
+export {doneListener, deleteListener}

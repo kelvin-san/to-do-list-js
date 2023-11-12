@@ -5,8 +5,8 @@ Este é um projeto simples de uma to-do list explorando alguns conceitos de prog
 O código neste primeiro momento está bem bagunçado e necessitando de uma refatoração para se tornar mais legível, estou trabalhando nisso neste momento.
 
 **Alguns pontos para serem trabalhados ainda:**
-[ ] Refatorar código
-[ ] Anexar vídeo explicativo do projeto
-[ ] Adicionar opção de edição dos itens
-[ ] Adicionar opção de edição do nome da lista
-[ ] Adicionar opção de deletar uma lista
+- [ ] Refatorar código
+- [ ] Anexar vídeo explicativo do projeto
+- [ ] Adicionar opção de edição dos itens
+- [ ] Adicionar opção de edição do nome da lista
+- [ ] Adicionar opção de deletar uma lista
