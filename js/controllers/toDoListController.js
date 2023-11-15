@@ -4,15 +4,6 @@ import Item from "../model/item.js"
 import * as StorageController from "./localStorageController.js"
 import * as DOMController from "./DOMController.js"
 
-// Button and form for a new list
-const newListButton = document.querySelector(".new-list-button")
-const newListCreator = document.querySelector(".list-creator")
-const createListButton = document.getElementById("createListButton")
-// Button and form for a new item
-const newItemButton = document.querySelector(".new-item-button")
-const newItemCreator = document.querySelector(".item-creator")
-const createItemButton = document.getElementById("createItemButton")
-
 let lists = []
 let globalItemID = 0
 
@@ -25,7 +16,6 @@ window.addEventListener("load", function () {
   if (!StorageController.isEmpty()) {
 
     const listAux = StorageController.loadLists()
-    console.log(listAux)
     listAux.map(listData => {
       const list = new List(listData.name)
 
@@ -42,17 +32,15 @@ window.addEventListener("load", function () {
       return list
     })
     
-    console.log(lists)
-    // lists = StorageController.loadLists()
     globalItemID = StorageController.loadGlobalID()
     
-    DOMController.loadLists(lists, getItensFunc)
+    DOMController.loadLists(lists)
   }
 
 })
 
 // Cria uma nova lista
-createListButton.addEventListener("click", function () {
+function createNewList() {
   let l = new List(DOMController.getNewListName())
 
   // Se o nome não for vazio
@@ -63,17 +51,17 @@ createListButton.addEventListener("click", function () {
     
       StorageController.save(lists, globalItemID)
     
-      DOMController.loadLists(lists, getItensFunc)
+      DOMController.loadLists(lists)
     } else {
       alert("O nome da lista já existe")
     }
   } else {
     alert("A lista deve receber um nome")
   }
-})
+}
 
 // Cria um novo item para uma lista
-createItemButton.addEventListener("click", function () {
+function createNewItem() {
   let itemTitle = DOMController.getNewItemTitle()
   let itemDesc = DOMController.getNewItemDescription()
 
@@ -92,20 +80,17 @@ createItemButton.addEventListener("click", function () {
   
     StorageController.save(lists, globalItemID)
     
-    DOMController.loadItens(getItensFunc())
+    DOMController.loadItens(getItensToLoad())
   
     globalItemID++
   } else {
     alert("O item deve ter ao menos um título")
   }
-})
+}
 
-
-
-// Funções auxiliares
-
-let doneListener = function toggleItemAsDone() {
-  let id = DOMController.getSelectedIdItem()
+// Altera um item como concluído ou não
+function toggleItemAsDone() {
+  let id = DOMController.getSelectedItemId()
   let listName = getSelectedList().name
   let listIndex = getIndexSelectedList(listName)
   let itemIndex = lists[listIndex].getItemIndex(id)
@@ -115,8 +100,9 @@ let doneListener = function toggleItemAsDone() {
   StorageController.save(lists, globalItemID)
 }
 
-let deleteListener = function toggleItemAsDone() {
-  let id = DOMController.getSelectedIdItem()
+// Deleta um item
+function deleteItem() {
+  let id = DOMController.getSelectedItemId()
   let listName = getSelectedList().name
   let listIndex = getIndexSelectedList(listName)
 
@@ -125,8 +111,12 @@ let deleteListener = function toggleItemAsDone() {
   StorageController.save(lists, globalItemID)
 }
 
+
+
+// Funções auxiliares
+
 function getSelectedList() {
-  let selectedList = lists.find((list) => list.name == DOMController.getAccListId())
+  let selectedList = lists.find((list) => list.name == DOMController.getselectedListId())
   let l = lists[getIndexSelectedList(selectedList.name)]
 
   return l
@@ -138,7 +128,7 @@ function getIndexSelectedList(name) {
   return index
 }
 
-let getItensFunc = function getItensToLoad() {
+function getItensToLoad() {
   return getSelectedList().itens
 }
 
@@ -164,4 +154,7 @@ function isNameAlreadyUsed(name) {
   * entre DOM e esse controller
 */
 
-export {doneListener, deleteListener}
+export {
+  createNewList, createNewItem,
+  getItensToLoad, toggleItemAsDone, deleteItem
+}

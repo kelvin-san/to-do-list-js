@@ -1,5 +1,19 @@
 import * as toDoController from "./toDoListController.js"
 
+// Images
+const checkedImage = {
+  path: "./media/icons/checked.svg",
+  alt: "Checked button"
+}
+const uncheckedImage = {
+  path: "./media/icons/unchecked.svg",
+  alt: "Unchecked button"
+}
+const deleteImage = {
+  path: "./media/icons/delete.svg",
+  alt: "Delete button"
+}
+
 // Containers
 const listMenu = document.querySelector(".side-menu")
 const listContent = document.querySelector(".list-content")
@@ -9,22 +23,24 @@ let newListButton = document.querySelector(".new-list-button")
 let newListCreator = document.querySelector(".list-creator")
 
 // Inputs for a new list
-const newListTitle = document.getElementById("newListTitle")
-const createListButton = document.getElementById("createListButton")
+const newListTitle = document.querySelector("#newListTitle")
+const createListButton = document.querySelector("#createListButton")
 
 // Button and form for a new item
 let newItemButton = document.querySelector(".new-item-button")
 let newItemCreator = document.querySelector(".item-creator")
 
 // Inputs for a new item
-const newItemTitle = document.getElementById("newItemTitle")
-const newItemDescription = document.getElementById("newItemDescription")
-const createItemButton = document.getElementById("createItemButton")
+const newItemTitle = document.querySelector("#newItemTitle")
+const newItemDescription = document.querySelector("#newItemDescription")
+const createItemButton = document.querySelector("#createItemButton")
 
-let accList
-let selectedIdItem
+// Others
+let selectedListId
+let selectedItemId
 
 
+// Carregamento inicial
 
 function initialLoad() {
   newItemButton.remove()
@@ -33,38 +49,80 @@ function initialLoad() {
 }
 
 
+// Listas
 
-function loadLists(lists, getItens) {
+newListButton.addEventListener("click", newListButtonAction)
+
+function newListButtonAction() {
+  newListButton.remove()
+
+  listMenu.append(newListCreator)
+
+  newListTitle.value = ''
+}
+
+function loadLists(lists) {
   // Limpa o conteúdo do menu lateral
   listMenu.innerHTML = "<h1>Listas</h1>"
 
-  // Itera sobre as listas carregadas e cria elementos HTML para cada uma
   lists.forEach((list) => {
     const newDiv = document.createElement("div")
     newDiv.className = "list"
     newDiv.id = `id:${list.name}`
 
-    const novoSpan = document.createElement("span")
-    novoSpan.className = "list-title"
-    novoSpan.textContent = list.name
+    const newSpan = document.createElement("span")
+    newSpan.className = "list-title"
+    newSpan.textContent = list.name
 
-    newDiv.appendChild(novoSpan)
+    newDiv.appendChild(newSpan)
 
-    // Adiciona um ouvinte de evento para lidar com o clique na lista
+    // Adiciona um event listener para lidar com o clique na lista
     newDiv.addEventListener("click", function () {
       selectList(newDiv)
-      loadItens(getItens())
+      loadItens(toDoController.getItensToLoad())
     })
 
-    // Adiciona a nova lista ao menu lateral
     listMenu.appendChild(newDiv)
   })
 
+  // Adiciona novamente o botão para a criação de uma nova lista
   listMenu.appendChild(newListButton)
 
   // Reatribui o evento de criação de nova lista após carregar as listas
   newListButton.addEventListener("click", newListButtonAction)
 }
+
+// Chama a lógica de criação de um novo item
+createListButton.addEventListener("click", function () {
+  toDoController.createNewList()
+})
+
+// Marca uma lista como selecionada
+function selectList(selectedList) {
+  let listDivs = document.querySelectorAll(".list")
+  listDivs.forEach((listDiv) => {
+    listDiv.classList.remove("selected")
+  })
+
+  selectedListId = selectedList
+
+  if (selectedList != newListButton) {
+    selectedList.classList.add("selected")
+  }
+}
+
+// Event listener para as listas
+document.querySelectorAll(".lists").forEach((listDiv) => {
+  listDiv.addEventListener("click", function(event) {
+    let selectedList = event.target
+    selectList(selectedList)
+    event = undefined
+  })
+})
+
+
+
+// Itens
 
 newItemButton.addEventListener("click", newItemButtonAction)
 
@@ -77,95 +135,64 @@ function newItemButtonAction() {
   listContent.append(newItemCreator)
 }
 
-
-function getAccListId() {
-  if (accList) {
-    let id = accList.id.split(":")[1]
-    return id
-  }
-}
-
-
-// Função para lidar com a seleção de listas
-function selectList(selectedListId) {
-  // Percorra todas as listas e remova a classe "selected"
-  let listDivs = document.querySelectorAll(".list")
-  listDivs.forEach((listDiv) => {
-    listDiv.classList.remove("selected")
-  })
-
-  // Encontre a lista selecionada com base no ID fornecido
-  let selectedList = selectedListId
-  accList = selectedListId
-
-  if (selectedList && selectedList != newListButton) {
-    // Adicione a classe "selected" à lista selecionada
-    selectedList.classList.add("selected")
-  }
-}
+createItemButton.addEventListener("click", function () {
+  toDoController.createNewItem()
+})
 
 function loadItens(itens) {
   listContent.innerHTML = ''
 
   if (itens) {
   itens.forEach((item) => {
-    // Cria uma div para o item
     let itemDiv = document.createElement("div")
     itemDiv.className = "item"
     itemDiv.id = `itemID:${item.id}`
 
-    // Cria o elemento de título do item
     let titleSpan = document.createElement("span")
     titleSpan.className = "item-title"
     titleSpan.textContent = item.title
 
-    // Cria o elemento de descrição do item
     let descriptionSpan = document.createElement("span")
     descriptionSpan.className = "item-description"
     descriptionSpan.textContent = item.description
 
-    // Cria a div para os botões do item
     let buttonsDiv = document.createElement("div")
     buttonsDiv.className = "item-buttons"
 
-    // Cria a imagem para o botão "Unchecked"
-    let uncheckedImg = document.createElement("img")
+    let doneImg = document.createElement("img")
     if (item.isDone) {
-      uncheckedImg.src = "media/icons/checked.svg"
-      uncheckedImg.alt = "Checked button"
+      doneImg.src = checkedImage.path
+      doneImg.alt = checkedImage.alt
       itemDiv.classList.add("done")
     } else {
-      uncheckedImg.src = "media/icons/unchecked.svg"
-      uncheckedImg.alt = "Unchecked button"
+      doneImg.src = uncheckedImage.path
+      doneImg.alt = uncheckedImage.alt
     }
-    uncheckedImg.id = `doneID:${item.id}`
+    doneImg.id = `doneID:${item.id}`
     
-    // Cria a imagem para o botão "Delete"
     let deleteImg = document.createElement("img")
-    deleteImg.src = "media/icons/delete.svg"
-    deleteImg.alt = "Delete button"
+    deleteImg.src = deleteImage.path
+    deleteImg.alt = deleteImage.alt
     deleteImg.id = `deleteID:${item.id}`
     
-    // Adiciona os elementos à div do item
     buttonsDiv.appendChild(uncheckedImg)
     buttonsDiv.appendChild(deleteImg)
 
-    uncheckedImg.addEventListener("click", function() {
-      setSelectedIdItem(item.id)
+    doneImg.addEventListener("click", function() {
+      setSelectedItemId(item.id)
       toggleDone(item.id)
-      toDoController.doneListener()
+      toDoController.toggleItemAsDone()
     })
     deleteImg.addEventListener("click", function() {
-      setSelectedIdItem(item.id)
+      setSelectedItemId(item.id)
       deleteItem(item.id)
-      toDoController.deleteListener()
+      toDoController.deleteItem()
     })
 
     itemDiv.appendChild(titleSpan)
     itemDiv.appendChild(descriptionSpan)
     itemDiv.appendChild(buttonsDiv)
 
-    // Adiciona a div do item ao conteúdo da lista
     listContent.appendChild(itemDiv)
   })
   }
@@ -173,23 +200,41 @@ function loadItens(itens) {
   listContent.append(newItemButton)
 }
 
-document.addEventListener("click", function(event) {
-  if (event.target && event.target.classList.contains("list")) {
-    let selectedList = event.target
-    selectList(selectedList)
-    event = undefined
+
+
+// Operações itens
+
+function toggleDone(id) {
+  let itensDOM = Array.from(document.querySelectorAll(".item"))
+  const selectedItem = itensDOM.find((div) => div.id.split(':')[1] == id)
+  
+  if (selectedItem) {
+    if (!selectedItem.classList.contains("done")) {
+      document.getElementById(`doneID:${id}`).src = checkedImage.path
+      document.getElementById(`doneID:${id}`).alt = checkedImage.alt
+
+      selectedItem.classList.add("done")
+    } else {
+      document.getElementById(`doneID:${id}`).src = uncheckedImage.path
+      document.getElementById(`doneID:${id}`).alt = uncheckedImage.alt
+
+      selectedItem.classList.remove("done")
+    }
   }
-})
-
-
-
-newListButton.addEventListener("click", newListButtonAction)
-
-function newListButtonAction() {
-  newListButton.remove()
-  listMenu.append(newListCreator)
-  newListTitle.value = ""
 }
+
+function deleteItem(id) {
+  let itensDOM = Array.from(document.querySelectorAll(".item"))
+  const selectedItem = itensDOM.find((div) => div.id.split(':')[1] == id)
+
+  if (selectedItem) {
+    selectedItem.remove()
+  }
+}
+
+
+
+// Operações auxiliares
 
 function getNewListName() {
   newListButton.remove()
@@ -208,49 +253,25 @@ function getNewItemDescription() {
   return newItemDescription.value
 }
 
-
-
-function setSelectedIdItem(id) {
-  selectedIdItem = id
-}
-
-function getSelectedIdItem(id) {
-  return selectedIdItem
-}
-
-function toggleDone(id) {
-  let itensDOM = Array.from(document.querySelectorAll(".item"))
-  const selectedItem = itensDOM.find((div) => div.id.split(':')[1] == id)
-  
-  if (selectedItem) {
-    if (!selectedItem.classList.contains("done")) {
-      document.getElementById(`doneID:${id}`).src = "./media/icons/checked.svg"
-      document.getElementById(`doneID:${id}`).alt = "Checked button"
-
-      selectedItem.classList.add("done")
-    } else {
-      document.getElementById(`doneID:${id}`).src = "./media/icons/unchecked.svg"
-      document.getElementById(`doneID:${id}`).alt = "Unchecked button"
-
-      selectedItem.classList.remove("done")
-    }
+function getselectedListId() {
+  if (selectedListId) {
+    let id = selectedListId.id.split(":")[1]
+    return id
   }
 }
 
-function deleteItem(id) {
-  let itensDOM = Array.from(document.querySelectorAll(".item"))
-  const selectedItem = itensDOM.find((div) => div.id.split(':')[1] == id)
+function setSelectedItemId(id) {
+  selectedItemId = id
+}
 
-  if (selectedItem) {
-    selectedItem.remove()
-  }
+function getSelectedItemId() {
+  return selectedItemId
 }
 
 
 
 export {
   initialLoad, loadLists, loadItens,
-  getNewListName,
-  getNewItemTitle, getNewItemDescription,
-  getAccListId, getSelectedIdItem
+  getNewListName, getNewItemTitle, getNewItemDescription,
+  getselectedListId, getSelectedItemId
 }
