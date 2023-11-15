@@ -142,18 +142,6 @@ function isNameAlreadyUsed(name) {
   return false
 }
 
-/*
-  [X] Refatorar função de deletar item
-  [X] Refatorar função de marcar item como feito
-  [X] Fazer essas funções utilizando os métodos das classes
-  
-  [ ] Comentar e estruturar melhor código
-  [ ] Organizar criação dos elementos no DOMController
-
-  * Lembrar de fazer essas funções ainda dividindo as responsabilidades
-  * entre DOM e esse controller
-*/
-
 export {
   createNewList, createNewItem,
   getItensToLoad, toggleItemAsDone, deleteItem
