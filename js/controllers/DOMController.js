@@ -175,7 +175,7 @@ function loadItens(itens) {
     deleteImg.alt = deleteImage.alt
     deleteImg.id = `deleteID:${item.id}`
     
-    buttonsDiv.appendChild(uncheckedImg)
+    buttonsDiv.appendChild(doneImg)
     buttonsDiv.appendChild(deleteImg)
 
     doneImg.addEventListener("click", function() {
